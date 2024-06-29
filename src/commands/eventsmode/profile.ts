@@ -84,6 +84,8 @@ export class Command {
       },
     });
 
-    await ctx.editReply({ files: [buffer] });
+    await ctx.editReply({
+      files: [new AttachmentBuilder(buffer, { name: `p-${eventsmode.id}.png` })],
+    });
   }
 }
