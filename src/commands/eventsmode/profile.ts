@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, CommandInteraction, GuildMember } from 'discord.js';
+import { ApplicationCommandOptionType, CommandInteraction, GuildMember, AttachmentBuilder } from 'discord.js';
 import { Discord, Guard, Slash, SlashOption } from 'discordx';
 import { Eventsmode } from '../../feature/eventsmode/eventsmode.entity.js';
 import { EventsmodeGuard } from '../../guards/eventsmode.guard.js';
