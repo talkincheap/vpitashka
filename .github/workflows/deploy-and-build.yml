@@ -2,7 +2,7 @@ name: 🚀 Deploy bot on hosting
 
 on:
   push:
-    branches: [staging]
+    branches: [production]
 
 
 jobs:
