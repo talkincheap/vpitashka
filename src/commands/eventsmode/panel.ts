@@ -199,24 +199,26 @@ export class Command {
       );
 
       if (eventAnnounceChannel && eventAnnounceChannel.isTextBased()) {
+        const linkButton = new ButtonBuilder()
+          .setLabel('Присоединиться')
+          .setStyle(ButtonStyle.Link)
+          .setURL(`https://discord.com/channels/${ctx.guild.id}/${voiceChannelId}`);
+      
+        const row = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(linkButton);
+        
         await eventAnnounceChannel
           .send(
             safeJsonParse(event.announcedEmbed, {
               content: BotMessages.SOMETHING_GONE_WRONG,
+              components: [row]
             }),
           )
           .catch(logger.error);
       }
     }
 
-    const linkButton = new ButtonBuilder()
-      .setLabel('Присоединиться')
-      .setStyle(ButtonStyle.Link)
-      .setURL(`https://discord.com/channels/${ctx.guild.id}/${voiceChannelId}`);
   
-    const row = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(linkButton);
-  
-    await ctx.editReply({ embeds: [updatedEmbed], components: [row] });
+    await ctx.editReply({ embeds: [updatedEmbed] });
   }
 
   @ButtonComponent({ id: '@button/event-pause-action' })
