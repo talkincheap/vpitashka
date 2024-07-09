@@ -208,9 +208,8 @@ export class Command {
         
         await eventAnnounceChannel
           .send(
-            safeJsonParse(event.announcedEmbed, {
+            safeJsonParse({...event.announcedEmbed, components: [row]}, {
               content: BotMessages.SOMETHING_GONE_WRONG,
-              components: [row]
             }),
           )
           .catch(logger.error);
