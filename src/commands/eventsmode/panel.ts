@@ -206,12 +206,12 @@ export class Command {
       
         const row = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(linkButton);
         
+        const embed = safeJsonParse(event.announcedEmbed, {
+          content: BotMessages.SOMETHING_GONE_WRONG,
+        });
+  
         await eventAnnounceChannel
-          .send(
-            safeJsonParse({...event.announcedEmbed, components: [row]}, {
-              content: BotMessages.SOMETHING_GONE_WRONG,
-            }),
-          )
+          .send({ ...embed, components: [row] })
           .catch(logger.error);
       }
     }
