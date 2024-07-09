@@ -209,7 +209,14 @@ export class Command {
       }
     }
 
-    await ctx.editReply({ embeds: [updatedEmbed] });
+  const linkButton = new ButtonBuilder()
+    .setLabel('Присоединиться')
+    .setStyle(ButtonStyle.Link)
+    .setURL(`https://discord.com/channels/${ctx.guild.id}/${voiceChannelId}`);
+
+  const row = new ActionRowBuilder().addComponents(linkButton);
+
+  await ctx.editReply({ embeds: [updatedEmbed], components: [row] });
   }
 
   @ButtonComponent({ id: '@button/event-pause-action' })
