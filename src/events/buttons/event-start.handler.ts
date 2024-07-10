@@ -9,6 +9,8 @@ import {
   OverwriteType,
   ComponentType,
   inlineCode,
+  ButtonBuilder,
+  ButtonStyle,
 } from 'discord.js';
 
 import { ButtonComponent, Discord } from 'discordx';
@@ -228,7 +230,7 @@ export class Button {
               }
             }
 
-            const { globalEventBans } = guild!;
+            const { globalEventBans, settingsManagement } = guild!;
 
             if (globalEventBans.length) {
               for (const { target } of globalEventBans) {
@@ -291,6 +293,40 @@ export class Button {
               .send(safeJsonParse(event.startEmbed, { content: BotMessages.SOMETHING_GONE_WRONG }))
               .then(async (msg) => await msg.pin())
               .catch(logger.error);
+
+              if (settingsManagement.isEventAnnounce) {
+                if (!settingsManagement.announceEventChannelId) {
+                  throw new CommandError({
+                    ctx,
+                    content: embedResponse({
+                      template: 'Please contact your moderator/administrator to setup announce channel',
+                      status: Colors.DANGER,
+                      ephemeral: true,
+                    }),
+                  });
+                }
+          
+                const eventAnnounceChannel = ctx.guild.channels.cache.get(
+                  settingsManagement.announceEventChannelId,
+                );
+          
+                if (eventAnnounceChannel && eventAnnounceChannel.isTextBased()) {
+                  const linkButton = new ButtonBuilder()
+                    .setLabel('Присоединиться')
+                    .setStyle(ButtonStyle.Link)
+                    .setURL(`https://discord.com/channels/${ctx.guild.id}/${eventVoiceChannel.id}`);
+                
+                  const row = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(linkButton);
+                  
+                  const embed = safeJsonParse(event.announcedEmbed, {
+                    content: BotMessages.SOMETHING_GONE_WRONG,
+                  });
+            
+                  await eventAnnounceChannel
+                    .send({ ...embed, components: [row] })
+                    .catch(logger.error);
+                }
+              }
           },
         );
       },

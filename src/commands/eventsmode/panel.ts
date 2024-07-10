@@ -193,27 +193,6 @@ export class Command {
           }),
         });
       }
-
-      const eventAnnounceChannel = ctx.guild.channels.cache.get(
-        guild.settingsManagement.announceEventChannelId,
-      );
-
-      if (eventAnnounceChannel && eventAnnounceChannel.isTextBased()) {
-        const linkButton = new ButtonBuilder()
-          .setLabel('Присоединиться')
-          .setStyle(ButtonStyle.Link)
-          .setURL(`https://discord.com/channels/${ctx.guild.id}/${voiceChannelId}`);
-      
-        const row = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(linkButton);
-        
-        const embed = safeJsonParse(event.announcedEmbed, {
-          content: BotMessages.SOMETHING_GONE_WRONG,
-        });
-  
-        await eventAnnounceChannel
-          .send({ ...embed, components: [row] })
-          .catch(logger.error);
-      }
     }
 
   
