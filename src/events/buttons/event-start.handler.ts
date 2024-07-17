@@ -11,6 +11,7 @@ import {
   inlineCode,
   ButtonBuilder,
   ButtonStyle,
+  EmbedBuilder,
 } from 'discord.js';
 
 import { ButtonComponent, Discord } from 'discordx';
