@@ -279,6 +279,31 @@ export class Button {
               components: [],
             });
 
+            if (ctx.guild.id === '457902248660434944') {
+              const recruitEmbed = new EmbedBuilder()
+              .setTitle(`<a:1905carebearblue:977344103006236792> Открыт набор на Eventsmod`)
+              .setDescription(
+                `<a:assiki2:1155562343841939587> **Ивентерики** - это люди которые проводят ивентики и глобальные мероприятия. У нас ты сможешь играть в свои любимые игры а так же найти друзей. У нас есть печеньки и чай так что тебя не обидем.
+                <a:assiki2:1155562343841939587> Если тебя заинтересовало то подавай заявку на кнопочку ниже или же если возникли вопросы то в лс <@684837635751018520>`,
+              )
+              .setImage('https://i.pinimg.com/736x/4f/d3/38/4fd3380d745bb2c08ba76e01be0650ce.jpg')
+              .setColor(14921983);
+
+              const row = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+                new ButtonBuilder()
+                  .setLabel('Подать заявку')
+                  .setStyle(ButtonStyle.Link)
+                  .setURL(
+                    `https://discord.com/channels/457902248660434944/994392141197475870/1171859955171737680`,
+                  ),
+              );
+
+              await eventTextChannel.send({
+                embeds: [recruitEmbed],
+                components: [row],
+              });
+            }
+
             await eventTextChannel
               .send(
                 embedResponse({
