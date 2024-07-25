@@ -210,7 +210,7 @@ export class Command {
       required: true,
       type: ApplicationCommandOptionType.String,
     })
-      category: string,
+    category: string,
     @SlashChoice('name', 'category', 'multiplayer', 'startEmbed', 'announcedEmbed')
     @SlashOption({
       description: 'Choice field tha you wanna change',
@@ -218,14 +218,14 @@ export class Command {
       required: true,
       type: ApplicationCommandOptionType.String,
     })
-      field: string,
+    field: string,
     @SlashOption({
       description: 'Value that will be replaced',
       name: 'value',
       required: true,
       type: ApplicationCommandOptionType.String,
     })
-      value: string,
+    value: string,
 
     ctx: CommandInteraction<'cached'>,
   ) {
@@ -279,14 +279,14 @@ export class Command {
       required: true,
       type: ApplicationCommandOptionType.String,
     })
-      name: string,
+    name: string,
     @SlashOption({
       description: 'event category',
       name: 'category',
       required: true,
       type: ApplicationCommandOptionType.String,
     })
-      category: string,
+    category: string,
     ctx: CommandInteraction<'cached'>,
   ) {
     const event = await Event.findOneBy({ name, category, guild: { id: ctx.guild.id } });
@@ -315,7 +315,7 @@ export class Command {
       required: true,
       type: ApplicationCommandOptionType.String,
     })
-      member: GuildMember,
+    member: GuildMember,
     ctx: CommandInteraction<'cached'>,
   ) {
     const eventActivity = await EventActivity.findOneBy({
