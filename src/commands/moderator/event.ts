@@ -203,7 +203,7 @@ export class Command {
       required: true,
       type: ApplicationCommandOptionType.String,
     })
-      name: string,
+    name: string,
     @SlashOption({
       description: 'event category',
       name: 'category',
