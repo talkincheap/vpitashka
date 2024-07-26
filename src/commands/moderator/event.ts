@@ -5,10 +5,12 @@ import {
   codeBlock,
   CommandInteraction,
   EmbedBuilder,
+  GuildMember,
   ModalBuilder,
   ModalSubmitInteraction,
   TextInputBuilder,
   TextInputStyle,
+  time,
 } from 'discord.js';
 import {
   Discord,
@@ -29,6 +31,12 @@ import { embedResponse } from '../../lib/embed-response.js';
 import { CommandError } from '../../lib/errors/command.error.js';
 import { userWithNameAndId } from '../../lib/log-formatter.js';
 import { chunks, pagination } from '../../lib/pagination.js';
+import { EventActivity } from '../../feature/event/event-activity/event-activity.entity.js';
+import { logger } from '../../lib/logger.js';
+import { EventActivityService } from '../../feature/event/event-activity/event-activity.service.js';
+import { EventsmodeService } from '../../feature/eventsmode/eventsmode.service.js';
+import { WeeklyEventHistoryService } from '../../feature/event/weekly-event-history/weekly-event-history.service.js';
+import { GlobalEventHistoryService } from '../../feature/event/global-event-history/global-event-history.service.js';
 
 @Discord()
 @injectable()
@@ -38,6 +46,10 @@ export class Command {
   constructor(
     private readonly eventService: EventService,
     private readonly loggerService: LoggerService,
+    private readonly eventActivityService: EventActivityService,
+    private readonly eventsmodeService: EventsmodeService,
+    private readonly weeklyEventHistoryService: WeeklyEventHistoryService,
+    private readonly globalEventHistoryService: GlobalEventHistoryService,
   ) {}
 
   @SlashGroup('event')
@@ -292,5 +304,88 @@ export class Command {
 
     await this.eventService.removeEvent(ctx.guild.id, name, category);
     await ctx.reply({ content: 'Event was successfully deleted.', ephemeral: true });
+  }
+
+  @SlashGroup('event')
+  @Slash({ description: 'Forced event close for eventsmode' })
+  async close(
+    @SlashOption({
+      description: 'user',
+      name: 'user',
+      required: true,
+      type: ApplicationCommandOptionType.String,
+    })
+    member: GuildMember,
+    ctx: CommandInteraction<'cached'>,
+  ) {
+    const eventActivity = await EventActivity.findOneBy({
+      executor: { userId: member.user.id, guild: { id: member.guild.id } },
+    });
+
+    if (!eventActivity) {
+      throw new CommandError({
+        ctx,
+        content: embedResponse({
+          template: `Пользователь не ведет никакой ивент.`,
+          status: Colors.DANGER,
+          ephemeral: true,
+        }),
+      });
+    }
+
+    const { id, event, voiceChannelId, textChannelId, executor, startedAt, eventTime } =
+      eventActivity!;
+
+    await this.eventActivityService.deleteEventActivity(id);
+
+    const salary = ~~(eventTime * event.multiplayer);
+
+    await this.eventsmodeService.editStatistics(executor.userId, executor.guild.id, {
+      weeklySalary: salary,
+      totalSalary: salary,
+    });
+
+    if (executor.longestEvent === 0 || eventTime > executor.longestEvent) {
+      await this.eventsmodeService.editStatistics(executor.userId, executor.guild.id, {
+        longestEvent: eventTime,
+      });
+    }
+
+    await this.weeklyEventHistoryService.addWeeklyEventHistory({
+      guild: { id: ctx.guild.id },
+      event,
+      eventsmode: executor,
+      startedAt,
+      totalTime: eventTime,
+      totalSalary: salary,
+    });
+
+    await this.globalEventHistoryService.addGlobalEventHistory({
+      guild: { id: ctx.guild.id },
+      event,
+      eventsmode: executor,
+      startedAt,
+      totalTime: eventTime,
+      totalSalary: salary,
+    });
+
+    await ctx.guild.channels.delete(voiceChannelId).catch(logger.error);
+    await ctx.guild.channels.delete(textChannelId).catch(logger.error);
+
+    await this.loggerService.log({
+      guildId: ctx.guild.id,
+      bot: ctx.client,
+      message: embedResponse({
+        template: `$1 закочил ивент $2 в $3\n$4`,
+        replaceArgs: [
+          userWithNameAndId(ctx.user),
+          event.category + ' | ' + event.name,
+          time(~~(new Date().getTime() / 1000)),
+          codeBlock('ts', `Время Ивентов: ${eventTime}\nЗарплата: ${salary}`),
+        ],
+      }),
+    });
+
+    await ctx.editReply({ content: 'done' });
   }
 }
