@@ -26,7 +26,7 @@ export class Command {
         SELECT sum(eventsmode.weekly_time) as "totalTime"
         FROM public.eventsmode
         LEFT JOIN guild ON eventsmode.guild_id = guild.id
-        WHERE eventsmode.guild_id = $1 AND eventsmode.is_hired = TRUE
+        WHERE eventsmode.guild_id = $1
       `,
       [ctx.guild.id],
     );
